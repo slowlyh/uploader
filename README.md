@@ -1,216 +1,237 @@
-# 🟠 Slowly Uploader
+# ⚡ HyuuCdn
 
-**Slowly Uploader** adalah aplikasi berbagi file sementara yang **minimalis, cepat, dan modern**. Dibangun menggunakan **React**, **Vite**, dan **Supabase**, aplikasi ini memberikan pengalaman unggah file yang mulus dengan tema visual **Orange–Amber Sunset** yang hangat.
+> **Neo-Brutalist High-Speed File CDN & Developer REST API**  
+> Dibangun dengan Next.js App Router, Supabase Storage & Database, serta desain Neo-Brutalism berkarakter kuat.
 
-Aplikasi mendukung pengunggahan file melalui:
-
-* Antarmuka web (Drag & Drop)
-* **Public API** untuk integrasi pihak ketiga atau penggunaan via terminal
-
----
-
-## ✨ Fitur Utama
-
-* 🚀 **Fast Upload** — Antarmuka drag & drop yang responsif dan ringan
-* 🕒 **Auto Expiration** — Masa berlaku file: **1 Jam**, **24 Jam**, atau **Selamanya**
-* 🔌 **Developer API** — Endpoint `/upload` untuk integrasi via skrip atau terminal
-* 📱 **Mobile Friendly** — Optimal di perangkat mobile hingga desktop
-* 🔗 **Easy Sharing** — Salin URL publik file dengan satu klik
-* 🎨 **Warm Aesthetics** — Desain gelap modern dengan aksen Oranye & Amber
+![License](https://img.shields.io/badge/license-MIT-black?style=flat-square)
+![Tech Stack](https://img.shields.io/badge/tech-Next.js%2014-black?style=flat-square&logo=next.js)
+![Database](https://img.shields.io/badge/storage-Supabase-black?style=flat-square&logo=supabase)
+![Design](https://img.shields.io/badge/ui-Neo--Brutalism-FFD028?style=flat-square)
 
 ---
 
-## 🛠️ Tech Stack
+## 🎨 Fitur Utama
 
-**Frontend**
+### 🖥️ Frontend (Neo-Brutalism Experience)
+- **Desain Neo-Brutalism Asli**: Solid black borders (`3px`), hard offset shadows (`4px 4px 0px 0px #000`), typography kontras tinggi hitam murni, dan warna aksen punchy (`#FFD028`, `#A3E635`, `#38BDF8`, `#FB7185`).
+- **Smooth Boot Loading Screen**: Animasi loading transisi mulus saat pengguna pertama kali membuka website (disimpan di session agar tidak mengganggu navigasi berikutnya).
+- **100% Responsif**: Dioptimalkan penuh untuk smartphone (touch-friendly drawer menu, scrolling table aman) hingga layar desktop ultra-wide.
+- **Halaman Lengkap**:
+  - **Home (`/`)**: Hero section interaktif, metric counters, feature breakdown, dan preview live code snippet multi-bahasa.
+  - **Upload File (`/upload`)**: Drag & drop zone modern, validasi client-side, selector retensi (7 Hari vs Permanen), upload progress bar, preview media (gambar/video/audio), serta Browser Upload History.
+  - **Docs (`/docs`)**: Dokumentasi 3-kolom standar industri (Navigation, Specification & Tables, Live Interactive Playground & Code Snippets cURL/JS/Python).
 
-* React.js (Vite)
-* Tailwind CSS
-
-**Backend (Supabase)**
-
-* **Storage** — Penyimpanan file
-* **Database** — Metadata file
-* **Edge Functions** — API endpoint `/upload`
+### ⚙️ Backend & REST API
+- **REST API V1 Ready**: Endpoint publik `/v1/upload` (dan `/api/v1/upload`) untuk integrasi skrip, terminal, bot, dan aplikasi eksternal.
+- **Masa Berlaku File (`expired`)**:
+  - `7d` / `7day` / `7`: File berlaku 7 hari (auto-cleanup).
+  - `permanent` / `never` / `0`: File disimpan selamanya tanpa kadaluarsa.
+- **Rate Limiting**: Sliding window rate limiter in-memory (maksimal **10 upload per menit per IP**) dengan header standar:
+  - `X-RateLimit-Limit`
+  - `X-RateLimit-Remaining`
+  - `X-RateLimit-Reset`
+  - `Retry-After` (HTTP 429 jika melebihi batas)
+- **Batas Ukuran**: Enforced maksimal **10MB** per file di sisi server & client.
+- **Supabase Edge Storage**: Terhubung langsung ke S3-compatible cloud bucket dengan link publik instan.
 
 ---
 
-## 🚀 Panduan Instalasi
+## 📁 Struktur Direktori
 
-### 1️⃣ Clone Repository
+```text
+├── app/
+│   ├── api/v1/
+│   │   ├── files/[id]/route.ts   # GET & DELETE file metadata
+│   │   ├── health/route.ts       # GET health & limit specs
+│   │   └── upload/route.ts       # POST file upload endpoint
+│   ├── docs/
+│   │   └── page.tsx              # Halaman API Docs 3-Kolom
+│   ├── upload/
+│   │   └── page.tsx              # Halaman Upload File & History
+│   ├── globals.css               # Neo-brutalist custom utilities & animations
+│   ├── layout.tsx                # Root layout, Preloader, Navbar, Footer
+│   └── page.tsx                  # Landing page
+├── components/
+│   ├── DocsPlayground.tsx        # Live interactive API tester
+│   ├── Footer.tsx                # Neo-brutalist footer
+│   ├── Navbar.tsx                # Sticky navbar & mobile drawer
+│   ├── Preloader.tsx             # Smooth boot loading animation
+│   ├── RecentUploads.tsx         # Local browser upload history
+│   ├── UploadResult.tsx          # Upload success modal & copy direct URL
+│   └── UploadZone.tsx            # Drag & drop upload box
+├── lib/
+│   ├── rate-limiter.ts           # Sliding window IP rate limiter
+│   ├── supabase.ts               # Client Supabase instance
+│   ├── supabase-server.ts        # Admin Supabase instance
+│   └── utils.ts                  # Formatter & helpers
+├── supabase/
+│   ├── migrations/               # Supabase SQL migrations
+│   └── schema.sql                # Skrip lengkap SQL setup database & storage
+└── next.config.mjs               # Next.js config & /v1/* URL rewrites
+```
 
+---
+
+## 🛠️ Panduan Instalasi & Menjalankan Lokal
+
+### 1. Clone Repository
 ```bash
 git clone https://github.com/slowlyh/uploader.git
 cd uploader
 ```
 
-### 2️⃣ Install Dependensi
-
+### 2. Install Dependensi
 ```bash
 npm install
 ```
 
-### 3️⃣ Konfigurasi Environment Variables
+### 3. Konfigurasi Environment Variables
+Salin `.env.example` menjadi `.env.local`:
+```bash
+cp .env.example .env.local
+```
 
-Buat file `.env` di direktori root:
-
+Isi variabel environment:
 ```env
-VITE_SUPABASE_PROJECT_ID=project-id
-VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
-VITE_SUPABASE_URL=url
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-> ⚠️ Pastikan **Anon Key** memiliki izin untuk mengakses Storage dan Edge Functions.
+### 4. Setup Database Supabase
+Buka **SQL Editor** di Dashboard Supabase Anda, lalu jalankan isi file `supabase/schema.sql`:
+- Membuat tabel `public.files_metadata` (dengan UUID, retention type, storage path, download counter, dan index).
+- Mengaktifkan Row Level Security (RLS) dan Realtime.
+- Membuat bucket `public-files` di Supabase Storage dengan limit 10MB.
+- Membuat function `clean_expired_files()` untuk membersihkan file yang telah melewati batas `expires_at`.
 
----
-
-### 4️⃣ Setup Supabase
-
-#### 📦 Storage
-
-* Buat bucket bernama **`public-files`**
-* Atur policy agar **public read** dan **insert** diperbolehkan
-
-#### 🗄️ Database
-
-Jalankan query berikut di **Supabase SQL Editor**:
-
-```sql
--- Create the files_metadata table for storing uploaded file information
-CREATE TABLE public.files_metadata (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  url TEXT NOT NULL,
-  size BIGINT NOT NULL,
-  type TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Enable RLS on the table
-ALTER TABLE public.files_metadata ENABLE ROW LEVEL SECURITY;
-
--- Create policy for public SELECT (anyone can view files)
-CREATE POLICY "Anyone can view files" 
-ON public.files_metadata 
-FOR SELECT 
-USING (true);
-
--- Create policy for public INSERT (anyone can upload files)
-CREATE POLICY "Anyone can upload files" 
-ON public.files_metadata 
-FOR INSERT 
-WITH CHECK (true);
-
--- Create policy for public DELETE (anyone can delete files)
-CREATE POLICY "Anyone can delete files" 
-ON public.files_metadata 
-FOR DELETE 
-USING (true);
-
--- Enable realtime for the table
-ALTER PUBLICATION supabase_realtime ADD TABLE public.files_metadata;
-
--- Create the public-files storage bucket
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('public-files', 'public-files', true);
-
--- Create storage policy for public file access
-CREATE POLICY "Public file access"
-ON storage.objects
-FOR SELECT
-USING (bucket_id = 'public-files');
-
--- Create storage policy for public file upload
-CREATE POLICY "Public file upload"
-ON storage.objects
-FOR INSERT
-WITH CHECK (bucket_id = 'public-files');
-
--- Create storage policy for public file delete
-CREATE POLICY "Public file delete"
-ON storage.objects
-FOR DELETE
-USING (bucket_id = 'public-files');
-
--- Add expires_at column to files_metadata table
-ALTER TABLE public.files_metadata 
-ADD COLUMN expires_at timestamp with time zone DEFAULT NULL;
-
--- Create index for efficient filtering of expired files
-CREATE INDEX idx_files_metadata_expires_at ON public.files_metadata(expires_at);
-```
-
----
-
-### 5️⃣ Jalankan Aplikasi
-
+### 5. Jalankan Server Development
 ```bash
 npm run dev
 ```
-
-Aplikasi akan berjalan di:
-
-```
-http://localhost:5173
-```
+Buka browser di: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 📡 Dokumentasi API
+## 📡 Dokumentasi REST API
 
-Unggah file secara terprogram tanpa menggunakan browser.
+### 1. Upload File
+- **Method**: `POST`
+- **Path**: `/v1/upload` (atau `/api/v1/upload`)
+- **Content-Type**: `multipart/form-data`
 
-### Endpoint
+#### Parameter Form:
+| Parameter | Tipe | Wajib | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `file` | Binary File | Ya | File yang diupload (maksimal **10MB**) |
+| `expired` | String | Opsional | `7d` (default, expire dalam 7 hari) atau `permanent` (selamanya) |
 
-```
-POST https://[PROJECT_ID].supabase.co/functions/v1/upload
-```
-
-### Headers
-
-| Key    | Value             |
-| ------ | ----------------- |
-| apikey | SUPABASE_ANON_KEY |
-
-### Body (Form Data)
-
-| Field      | Deskripsi                                   |
-| ---------- | ------------------------------------------- |
-| file       | File yang akan diunggah                     |
-| expiration | Durasi file (1, 24, atau 0 untuk selamanya) |
-
----
-
-### Contoh Menggunakan cURL
-
+#### Contoh Request cURL:
 ```bash
-curl -X POST "https://[PROJECT_ID].supabase.co/functions/v1/upload" \
-  -H "apikey: YOUR_SUPABASE_ANON_KEY" \
-  -F "file=@./dokumen/data.pdf" \
-  -F "expiration=24"
+# Upload file dengan masa simpan 7 hari
+curl -X POST "https://your-domain.com/v1/upload" \
+  -F "file=@./gambar.png" \
+  -F "expired=7d"
+
+# Upload file dengan masa simpan permanen
+curl -X POST "https://your-domain.com/v1/upload" \
+  -F "file=@./dokumen.pdf" \
+  -F "expired=permanent"
+```
+
+#### Contoh Request JavaScript:
+```javascript
+const form = new FormData();
+form.append("file", fileInput.files[0]);
+form.append("expired", "permanent");
+
+const res = await fetch("https://your-domain.com/v1/upload", {
+  method: "POST",
+  body: form
+});
+const data = await res.json();
+console.log("Direct CDN URL:", data.data.url);
+```
+
+#### Contoh Request Python:
+```python
+import requests
+
+files = {'file': open('photo.jpg', 'rb')}
+data = {'expired': '7d'}
+
+res = requests.post('https://your-domain.com/v1/upload', files=files, data=data)
+print(res.json()['data']['url'])
+```
+
+#### Response Sukses (`201 Created`):
+```json
+{
+  "success": true,
+  "message": "File uploaded successfully to HyuuCdn",
+  "data": {
+    "id": "c89f53e2-89b1-4f81-a9f2-51a8eb82f142",
+    "name": "photo.jpg",
+    "size": 1048576,
+    "type": "image/jpeg",
+    "url": "https://xyz.supabase.co/storage/v1/object/public/public-files/1726300000_abc123.jpg",
+    "storage_path": "1726300000_abc123.jpg",
+    "expired": "7d",
+    "expires_at": "2026-09-21T08:00:00.000Z",
+    "created_at": "2026-09-14T08:00:00.000Z"
+  }
+}
 ```
 
 ---
 
-## 📌 Catatan
-
-* File akan otomatis dihapus berdasarkan nilai `expires_at`
-* Endpoint API cocok untuk CI/CD, automation, atau CLI tools
-* Tidak memerlukan autentikasi user (public upload)
+### 2. Dapatkan Metadata File
+- **Method**: `GET`
+- **Path**: `/v1/files/{id}`
+- **Response**: Mengembalikan status file, direct URL, jumlah download, dan waktu expire.
 
 ---
 
-## ❤️ Kontribusi
+### 3. Cek Health & Konfigurasi Sistem
+- **Method**: `GET`
+- **Path**: `/v1/health`
+- **Response**:
+```json
+{
+  "status": "ok",
+  "service": "HyuuCdn",
+  "version": "1.0.0",
+  "storage": {
+    "provider": "supabase",
+    "bucket": "public-files",
+    "configured": true
+  },
+  "limits": {
+    "max_upload_size": "10MB",
+    "max_upload_bytes": 10485760,
+    "retention_options": ["7d", "permanent"],
+    "rate_limit": "10 uploads per minute per IP"
+  }
+}
+```
 
-Pull request dan ide pengembangan sangat diterima.
-Silakan fork repository ini dan buat perubahan terbaikmu.
+---
+
+## 🔒 Kebijakan Rate Limit
+Setiap client IP dibatasi maksimal **10 kali upload dalam 60 detik**.  
+Jika melebihi limit, server mengembalikan status code `429 Too Many Requests`:
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded. Maximum 10 uploads per minute.",
+  "retry_after": 45
+}
+```
 
 ---
 
 ## 📄 Lisensi
+Distributed under the MIT License.
 
-MIT License
-
----
-
-Dibuat dengan ❤️ oleh **Slowly**
+Dibuat dengan ❤️ oleh **[Slowly / Hyuu](https://github.com/slowlyh)**.
